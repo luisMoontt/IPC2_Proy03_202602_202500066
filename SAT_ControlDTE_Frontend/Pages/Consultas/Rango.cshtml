@@ -1,0 +1,117 @@
+@page
+@model RangoModel
+@{
+    ViewData["Title"] = "Resumen por rango de fechas";
+}
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" asp-for="Desde">Desde</label>
+                <input class="form-control" asp-for="Desde" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" asp-for="Hasta">Hasta</label>
+                <input class="form-control" asp-for="Hasta" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label d-block">Valores</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="Valores" value="total" id="total" />
+                    <label class="form-check-label" for="total">Totales</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="Valores" value="siniva" id="siniva" />
+                    <label class="form-check-label" for="siniva">Sin IVA</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit">Consultar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    ResumenRango r = Model.Resultado;
+    string subtitulo = $"Del {r.Desde} al {r.Hasta} - Valores: {Model.NombreValores}";
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Valor autorizado por fecha</h2>
+                    <div class="text-muted">@subtitulo</div>
+                </div>
+                @if (r.Fechas.Count > 0)
+                {
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-subtitulo="@subtitulo"
+                            onclick="generarPdf({ titulo: 'Resumen por rango de fechas', subtitulo: this.dataset.subtitulo, archivo: 'resumen_rango.pdf', grafica: 'grafica', tablas: ['tablaRango'] })">
+                        Descargar PDF
+                    </button>
+                }
+            </div>
+
+            @if (r.Fechas.Count == 0)
+            {
+                <div class="alert alert-info mb-0">No hay facturas autorizadas en el rango indicado.</div>
+            }
+            else
+            {
+                <div class="grafica-contenedor mb-4">
+                    <canvas id="grafica"></canvas>
+                </div>
+
+                <table class="table table-sm table-striped" id="tablaRango">
+                    <thead>
+                        <tr><th>Fecha</th><th class="num">Facturas autorizadas</th><th class="num">Valor autorizado (@Model.NombreValores)</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (RangoPorFecha fila in r.Fechas)
+                        {
+                            <tr><td>@fila.Fecha</td><td class="num">@fila.CantidadFacturas</td><td class="num">Q @Model.ValorDe(fila).ToString("N2")</td></tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td>Total del rango</td>
+                            <td class="num">@r.Fechas.Sum(f => f.CantidadFacturas)</td>
+                            <td class="num">Q @Model.ValorGeneral.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            }
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="~/lib/chartjs/chart.umd.min.js"></script>
+        <script>
+            new Chart(document.getElementById('grafica'), {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(r.Fechas.Select(f => f.Fecha)),
+                    datasets: [{
+                        label: '@Model.NombreValores',
+                        data: @Json.Serialize(r.Fechas.Select(f => Model.ValorDe(f))),
+                        backgroundColor: '#0dcaf0'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: { title: { display: true, text: 'Valor autorizado por fecha (Q)' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        </script>
+    }
+}

@@ -1,12 +1,26 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SAT_ControlDTE_Frontend.Pages;
+namespace Sat.Web;
 
 public class IndexModel : PageModel
 {
-    public void OnGet()
-    {
+    private readonly ApiCliente api;
 
+    public IndexModel(ApiCliente api)
+    {
+        this.api = api;
+    }
+
+    public bool ApiConectada { get; private set; }
+    public TotalesSistema Totales { get; private set; } = new TotalesSistema();
+    public string? Error { get; private set; }
+
+    public async Task OnGetAsync()
+    {
+        ResultadoApi<RespuestaEstado> estado = await api.Estado();
+        ApiConectada = estado.Exito;
+        Error = estado.Error;
+        if (estado.Datos != null)
+            Totales = estado.Datos.Totales;
     }
 }

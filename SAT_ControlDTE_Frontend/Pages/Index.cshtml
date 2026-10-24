@@ -1,10 +1,109 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
+    <div>
+        <h2 class="h4 mb-1 text-gray">Simulador de autorizacion de DTE</h2>
+        <div class="text-muted">Frontend para probar el servicio de la Superintendencia de Administracion Tributaria.</div>
+    </div>
+    @if (Model.ApiConectada)
+    {
+        <span class="badge text-bg-success fs-6"><i class="fas fa-plug me-1"></i>API conectada</span>
+    }
+    else
+    {
+        <span class="badge text-bg-danger fs-6"><i class="fas fa-unlink me-1"></i>API sin conexion</span>
+    }
+</div>
+
+@if (!Model.ApiConectada)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card tarjeta-indicador h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="indicador-titulo">Contribuyentes en el RTU</div>
+                    <div class="indicador-valor">@Model.Totales.Contribuyentes</div>
+                </div>
+                <i class="fas fa-users indicador-icono"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card tarjeta-indicador verde h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="indicador-titulo">Facturas autorizadas</div>
+                    <div class="indicador-valor">@Model.Totales.FacturasAutorizadas</div>
+                </div>
+                <i class="fas fa-check-circle indicador-icono"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card tarjeta-indicador rojo h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="indicador-titulo">Facturas rechazadas</div>
+                    <div class="indicador-valor">@Model.Totales.FacturasRechazadas</div>
+                </div>
+                <i class="fas fa-times-circle indicador-icono"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card tarjeta-indicador ambar h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="indicador-titulo">Monto autorizado</div>
+                    <div class="indicador-valor">Q @Model.Totales.MontoAutorizado.ToString("N2")</div>
+                </div>
+                <i class="fas fa-coins indicador-icono"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header py-3"><h3 class="card-titulo"><i class="fas fa-paper-plane me-2"></i>Enviar mensaje</h3></div>
+            <div class="card-body">
+                <p class="text-muted">Cargue archivos JSON para actualizar el RTU o solicitar autorizaciones de facturas.</p>
+                <a class="btn btn-primary" asp-page="/Enviar"><i class="fas fa-upload me-1"></i>Enviar archivos</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header py-3"><h3 class="card-titulo"><i class="fas fa-search me-2"></i>Peticiones</h3></div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-1"><a asp-page="/Consultas/Contribuyente">Consultar contribuyente</a></li>
+                    <li class="mb-1"><a asp-page="/Consultas/Iva">Resumen de IVA por fecha y NIT</a></li>
+                    <li class="mb-1"><a asp-page="/Consultas/Rango">Resumen por rango de fechas</a></li>
+                    <li><a asp-page="/Consultas/Errores">Reporte de facturas y errores</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header py-3"><h3 class="card-titulo"><i class="fas fa-question-circle me-2"></i>Ayuda</h3></div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-1"><a asp-page="/Ayuda/Estudiante">Informacion del estudiante</a></li>
+                    <li><a asp-page="/Ayuda/Documentacion">Documentacion del programa</a></li>
+                </ul>
+                <a class="btn btn-outline-danger btn-sm" asp-page="/Inicializar"><i class="fas fa-trash-restore me-1"></i>Inicializar sistema</a>
+            </div>
+        </div>
+    </div>
 </div>

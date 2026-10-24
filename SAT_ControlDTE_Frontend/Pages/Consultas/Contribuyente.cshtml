@@ -1,0 +1,111 @@
+@page
+@model ContribuyenteModel
+@{
+    ViewData["Title"] = "Consultar contribuyente";
+}
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" asp-for="Nit">NIT</label>
+                <input class="form-control" asp-for="Nit" placeholder="Ej. 999999K" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label d-block">Facturas</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="Tipo" value="emitidas" id="emitidas" />
+                    <label class="form-check-label" for="emitidas">Emitidas</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="Tipo" value="recibidas" id="recibidas" />
+                    <label class="form-check-label" for="recibidas">Recibidas</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" asp-for="Desde">Desde</label>
+                <input class="form-control" asp-for="Desde" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" asp-for="Hasta">Hasta</label>
+                <input class="form-control" asp-for="Hasta" />
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit">Consultar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    ConsultaContribuyente r = Model.Resultado;
+    string titulo = $"Facturas {r.Tipo} - NIT {r.Nit} {r.Nombre}";
+    string subtitulo = $"Del {r.Desde} al {r.Hasta}";
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 mb-1">@titulo</h2>
+                    <div class="text-muted">@subtitulo</div>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-titulo="@titulo" data-subtitulo="@subtitulo"
+                        onclick="generarPdf({ titulo: this.dataset.titulo, subtitulo: this.dataset.subtitulo, archivo: 'consulta_contribuyente.pdf', tablas: ['tablaResumen', 'tablaDetalle'] })">
+                    Descargar PDF
+                </button>
+            </div>
+
+            @if (r.CantidadFacturas == 0)
+            {
+                <div class="alert alert-info mb-0">No hay facturas autorizadas para ese NIT en el rango indicado.</div>
+            }
+            else
+            {
+                <h3 class="h6">Resumen por fecha</h3>
+                <table class="table table-sm table-striped" id="tablaResumen">
+                    <thead>
+                        <tr><th>Fecha</th><th class="num">Facturas autorizadas</th><th class="num">Monto facturado</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (TotalPorFecha fila in r.Fechas)
+                        {
+                            <tr><td>@fila.Fecha</td><td class="num">@fila.CantidadFacturas</td><td class="num">Q @fila.MontoTotal.ToString("N2")</td></tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold"><td>Total del rango</td><td class="num">@r.CantidadFacturas</td><td class="num">Q @r.MontoTotal.ToString("N2")</td></tr>
+                    </tfoot>
+                </table>
+
+                <h3 class="h6 mt-4">Listado de facturas</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm" id="tablaDetalle">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th><th>Referencia</th><th>NIT emisor</th><th>NIT receptor</th>
+                                <th class="num">Valor</th><th class="num">IVA</th><th class="num">Total</th><th>Codigo de aprobacion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (FacturaDetalle f in r.Facturas)
+                            {
+                                <tr>
+                                    <td>@f.Fecha</td><td>@f.Referencia</td><td>@f.NitEmisor</td><td>@f.NitReceptor</td>
+                                    <td class="num">@f.Valor.ToString("N2")</td><td class="num">@f.Iva.ToString("N2")</td>
+                                    <td class="num">@f.Total.ToString("N2")</td><td>@f.CodigoAprobacion</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}

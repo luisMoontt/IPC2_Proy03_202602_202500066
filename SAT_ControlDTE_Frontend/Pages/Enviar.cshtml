@@ -1,0 +1,122 @@
+@page
+@model EnviarModel
+@{
+    ViewData["Title"] = "Enviar mensaje";
+}
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            <label class="form-label" for="archivos">
+                Archivos JSON (actualizacion de RTU o solicitudes de autorizacion). Puede elegir varios a la vez.
+            </label>
+            <input class="form-control" type="file" id="archivos" name="Archivos" accept=".json" multiple
+                   onchange="vistaPrevia(this, 'vistaPrevia')" />
+            <div id="vistaPrevia" class="mt-3"></div>
+            <p class="text-muted small mt-2 mb-3">Si elige RTU y facturas juntos, el RTU se envia primero.</p>
+            <button class="btn btn-primary" type="submit">Enviar a la API</button>
+        </form>
+    </div>
+</div>
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+
+@foreach (ResultadoEnvio resultado in Model.Resultados)
+{
+    <div class="card mb-3">
+        <div class="card-header d-flex flex-wrap align-items-center gap-2">
+            <strong>@resultado.Archivo</strong>
+            @if (resultado.Tipo != "")
+            {
+                <span class="badge text-bg-secondary">@resultado.Tipo</span>
+            }
+            @if (resultado.Exito)
+            {
+                <span class="badge text-bg-success ms-auto">Procesado</span>
+            }
+            else
+            {
+                <span class="badge text-bg-danger ms-auto">Error</span>
+            }
+        </div>
+        <div class="card-body">
+            @if (!resultado.Exito)
+            {
+                <div class="alert alert-danger mb-0">@resultado.Error</div>
+            }
+
+            @if (resultado.Rtu != null)
+            {
+                <div class="row text-center">
+                    <div class="col"><div class="dato-grande text-success">@resultado.Rtu.Nuevos</div>Contribuyentes nuevos</div>
+                    <div class="col"><div class="dato-grande text-primary">@resultado.Rtu.Actualizados</div>Contribuyentes actualizados</div>
+                    <div class="col"><div class="dato-grande text-danger">@resultado.Rtu.Invalidos</div>NITs invalidos</div>
+                </div>
+            }
+
+            @if (resultado.Autorizaciones != null)
+            {
+                ResultadoAutorizaciones a = resultado.Autorizaciones;
+                <div class="row text-center mb-3">
+                    <div class="col"><div class="dato-grande text-success">@a.CantidadAutorizacionesAprobadas</div>Aprobadas</div>
+                    <div class="col"><div class="dato-grande text-danger">@a.CantidadAutorizacionesRechazadas</div>Rechazadas</div>
+                    <div class="col"><div class="dato-grande text-secondary">@a.CantidadDescartadasPorFormato</div>Descartadas por formato</div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <table class="table table-sm">
+                            <thead><tr><th>Rechazos por tipo de error</th><th class="num">Cantidad</th></tr></thead>
+                            <tbody>
+                                <tr><td>NIT emisor inexistente</td><td class="num">@a.CantidadAutorizacionesRechazadasPorNitEmisorInexistente</td></tr>
+                                <tr><td>NIT receptor inexistente</td><td class="num">@a.CantidadAutorizacionesRechazadasPorNitReceptorInexistente</td></tr>
+                                <tr><td>NIT emisor invalido</td><td class="num">@a.CantidadAutorizacionesRechazadasPorNitEmisorInvalido</td></tr>
+                                <tr><td>NIT receptor invalido</td><td class="num">@a.CantidadAutorizacionesRechazadasPorNitReceptorInvalido</td></tr>
+                                <tr><td>IVA mal calculado</td><td class="num">@a.CantidadAutorizacionesRechazadasPorIvaMalCalculado</td></tr>
+                                <tr><td>TOTAL mal calculado</td><td class="num">@a.CantidadAutorizacionesRechazadasPorTotalMalCalculado</td></tr>
+                                <tr><td>Referencia duplicada</td><td class="num">@a.CantidadAutorizacionesRechazadasPorReferenciaDuplicada</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-lg-4">
+                        <table class="table table-sm">
+                            <thead><tr><th>Referencia</th><th>Codigo de aprobacion</th></tr></thead>
+                            <tbody>
+                                @foreach (DetalleAprobacion aprobacion in a.DetalleAprobaciones)
+                                {
+                                    <tr><td>@aprobacion.Referencia</td><td>@aprobacion.CodigoAprobacion</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-lg-4">
+                        <table class="table table-sm">
+                            <thead><tr><th>Referencia rechazada</th><th>Errores</th></tr></thead>
+                            <tbody>
+                                @foreach (DetalleRechazo rechazo in a.DetalleRechazos)
+                                {
+                                    <tr>
+                                        <td>@rechazo.Referencia</td>
+                                        <td class="small">@string.Join("; ", rechazo.Errores)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (resultado.JsonRespuesta != "")
+            {
+                <details class="mt-3">
+                    <summary>Ver respuesta JSON de la API</summary>
+                    <pre class="json-respuesta mt-2">@resultado.JsonRespuesta</pre>
+                </details>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,100 @@
+@page
+@model ErroresModel
+@{
+    ViewData["Title"] = "Reporte de facturas recibidas y errores";
+}
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" asp-for="Desde">Desde</label>
+                <input class="form-control" asp-for="Desde" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" asp-for="Hasta">Hasta</label>
+                <input class="form-control" asp-for="Hasta" />
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit">Consultar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    ReporteErrores r = Model.Resultado;
+    string subtitulo = $"Del {r.Desde} al {r.Hasta}";
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Facturas recibidas por fecha</h2>
+                    <div class="text-muted">@subtitulo</div>
+                </div>
+                @if (r.Fechas.Count > 0)
+                {
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-subtitulo="@subtitulo"
+                            onclick="generarPdf({ titulo: 'Reporte de facturas recibidas y errores', subtitulo: this.dataset.subtitulo, archivo: 'reporte_errores.pdf', tablas: ['tablaErrores'], horizontal: true })">
+                        Descargar PDF
+                    </button>
+                }
+            </div>
+
+            @if (r.Fechas.Count == 0)
+            {
+                <div class="alert alert-info mb-0">No se recibieron facturas en el rango indicado.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered small" id="tablaErrores">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th class="num">Facturas recibidas</th>
+                                <th class="num">NIT emisor invalido</th>
+                                <th class="num">NIT receptor invalido</th>
+                                <th class="num">NIT emisor inexistente</th>
+                                <th class="num">NIT receptor inexistente</th>
+                                <th class="num">IVA mal calculado</th>
+                                <th class="num">TOTAL mal calculado</th>
+                                <th class="num">Referencia duplicada</th>
+                                <th class="num">Facturas sin errores</th>
+                                <th class="num">Emisores</th>
+                                <th class="num">Receptores</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ErroresPorFecha d in r.Fechas)
+                            {
+                                <tr>
+                                    <td>@d.Fecha</td>
+                                    <td class="num">@d.CantidadFacturasRecibidas</td>
+                                    <td class="num">@d.Errores.NitEmisorInvalido</td>
+                                    <td class="num">@d.Errores.NitReceptorInvalido</td>
+                                    <td class="num">@d.Errores.NitEmisorInexistente</td>
+                                    <td class="num">@d.Errores.NitReceptorInexistente</td>
+                                    <td class="num">@d.Errores.IvaMalCalculado</td>
+                                    <td class="num">@d.Errores.TotalMalCalculado</td>
+                                    <td class="num">@d.Errores.ReferenciaDuplicada</td>
+                                    <td class="num">@d.CantidadFacturasSinErrores</td>
+                                    <td class="num">@d.CantidadEmisores</td>
+                                    <td class="num">@d.CantidadReceptores</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}

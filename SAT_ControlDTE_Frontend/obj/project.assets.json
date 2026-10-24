@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\IPC-2\\REPOS\\IPC2_Proy03_202602_202500066\\SAT_ControlDTE_Frontend\\SAT_ControlDTE_Frontend.csproj",
-      "projectName": "SAT_ControlDTE_Frontend",
-      "projectPath": "C:\\Users\\Admin\\Desktop\\IPC-2\\REPOS\\IPC2_Proy03_202602_202500066\\SAT_ControlDTE_Frontend\\SAT_ControlDTE_Frontend.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\src - copia\\src - copia\\Sat.Web\\Sat.Web.csproj",
+      "projectName": "Sat.Web",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\src - copia\\src - copia\\Sat.Web\\Sat.Web.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Desktop\\IPC-2\\REPOS\\IPC2_Proy03_202602_202500066\\SAT_ControlDTE_Frontend\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\Desktop\\src - copia\\src - copia\\Sat.Web\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config"

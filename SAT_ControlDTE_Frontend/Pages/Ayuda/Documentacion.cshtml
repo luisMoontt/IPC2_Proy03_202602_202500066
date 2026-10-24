@@ -1,0 +1,49 @@
+@page
+@inject IConfiguration Configuracion
+@{
+    ViewData["Title"] = "Documentacion del programa";
+    string apiUrl = (Configuracion["ApiUrl"] ?? "").TrimEnd('/');
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header py-3"><h2 class="card-titulo"><i class="fas fa-book me-2"></i>Documentacion</h2></div>
+            <div class="card-body">
+                <p>
+                    El sistema esta formado por dos programas: <strong>Sat.Api</strong>, un servicio HTTP en .NET que valida
+                    las facturas, asigna los codigos de autorizacion y guarda la informacion en SQLite, y <strong>Sat.Web</strong>,
+                    este frontend en Razor Pages que consume la API.
+                </p>
+                <p>El ensayo con los diagramas de clases, actividades y despliegue se encuentra en el repositorio:</p>
+                <a class="btn btn-primary" href="https://github.com/NanDo-ssj/IPC2_Proy03_202602_202503756/tree/main/docs"
+                   target="_blank"><i class="fab fa-github me-1"></i>Ir a la documentacion</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header py-3"><h2 class="card-titulo"><i class="fas fa-plug me-2"></i>Servicios de la API</h2></div>
+            <div class="card-body">
+                <p class="mb-2">Direccion de la API: <code>@apiUrl</code></p>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Metodo</th><th>Ruta</th><th>Descripcion</th></tr></thead>
+                        <tbody>
+                            <tr><td>POST</td><td><code>/api/rtu</code></td><td>Crea o actualiza contribuyentes del RTU</td></tr>
+                            <tr><td>GET</td><td><code>/api/rtu</code></td><td>Lista los contribuyentes registrados</td></tr>
+                            <tr><td>POST</td><td><code>/api/autorizaciones</code></td><td>Valida las facturas y devuelve los codigos de autorizacion</td></tr>
+                            <tr><td>GET</td><td><code>/api/consultas/contribuyente</code></td><td>Facturas emitidas o recibidas por un NIT (nit, tipo, desde, hasta)</td></tr>
+                            <tr><td>GET</td><td><code>/api/consultas/iva</code></td><td>IVA emitido y recibido por NIT en una fecha (fecha)</td></tr>
+                            <tr><td>GET</td><td><code>/api/consultas/rango</code></td><td>Valor autorizado por fecha, con y sin IVA (desde, hasta)</td></tr>
+                            <tr><td>GET</td><td><code>/api/consultas/errores</code></td><td>Facturas recibidas y errores por fecha (desde, hasta)</td></tr>
+                            <tr><td>POST</td><td><code>/api/inicializar</code></td><td>Borra todos los datos</td></tr>
+                            <tr><td>GET</td><td><code>/api/estado</code></td><td>Verifica que la API este funcionando</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
