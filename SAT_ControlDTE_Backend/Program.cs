@@ -2,6 +2,12 @@
 using SAT_ControlDTE.DataBase;
 using SAT_ControlDTE.Services;
 
+
+
+
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
