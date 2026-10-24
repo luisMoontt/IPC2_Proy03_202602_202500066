@@ -1,22 +1,24 @@
+using System.Globalization;
+using Sat.Web;
+
+// Montos y fechas con formato de Guatemala (punto decimal, coma de miles)
+CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("es-GT");
+CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("es-GT");
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
+
+// HttpClient que usa ApiCliente para hablar con Sat.Api. La direccion esta en appsettings.json ("ApiUrl")
+builder.Services.AddHttpClient<ApiCliente>(cliente =>
+    cliente.BaseAddress = new Uri(builder.Configuration["ApiUrl"] ?? "http://localhost:5234/"));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
-{
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
