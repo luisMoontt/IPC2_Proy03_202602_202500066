@@ -1,4 +1,4 @@
-namespace Sat.Api;
+using SAT_ControlDTE.Models;
 
 namespace SAT_ControlDTE.Validations
 {

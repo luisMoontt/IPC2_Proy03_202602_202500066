@@ -1,6 +1,5 @@
 using System;
 using SAT_ControlDTE.Models;
-using SAT_ControlDTE.Validations;
 
 namespace SAT_ControlDTE.Models
 {

@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using SAT_ControlDTE.DataBase;
 using SAT_ControlDTE.Validations;
+using SAT_ControlDTE.Models;
 
 namespace SAT_ControlDTE.Services
 {

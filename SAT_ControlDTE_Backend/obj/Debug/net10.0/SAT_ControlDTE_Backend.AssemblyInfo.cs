@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SAT_ControlDTE_Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+541f8b6fbb48293870d37044d803d58893178ea5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9388d485c499e4553761c8f1de5b31552806946d")]
 [assembly: System.Reflection.AssemblyProductAttribute("SAT_ControlDTE_Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SAT_ControlDTE_Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

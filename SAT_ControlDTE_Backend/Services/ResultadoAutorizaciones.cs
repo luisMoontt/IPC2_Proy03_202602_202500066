@@ -1,3 +1,5 @@
+using SAT_ControlDTE.Models;
+
 namespace SAT_ControlDTE.Services
 {
     public class ResultadoAutorizaciones
