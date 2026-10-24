@@ -1,18 +1,22 @@
 @page
 @model IvaModel
 @{
-    ViewData["Title"] = "Resumen de IVA por fecha y NIT";
+    ViewData["Title"] = "IVA por fecha";
 }
 
+<header class="pagina-encabezado">
+    <h1>IVA por fecha</h1>
+    <p>Compara el IVA que cada contribuyente emitió y recibió en un día específico.</p>
+</header>
 
 <div class="card mb-4">
     <div class="card-body">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-3">
+        <form method="get" class="filtros">
+            <div>
                 <label class="form-label" asp-for="Fecha">Fecha</label>
                 <input class="form-control" asp-for="Fecha" />
             </div>
-            <div class="col-md-2">
+            <div>
                 <button class="btn btn-primary w-100" type="submit">Consultar</button>
             </div>
         </form>
@@ -24,26 +28,37 @@
     <div class="alert alert-warning">@Model.Error</div>
 }
 
+@if (Model.Resultado == null && Model.Error == null)
+{
+    <div class="vacio">
+        <i class="fas fa-percent"></i>
+        <p>Elige una fecha y pulsa «Consultar» para ver el IVA de cada NIT.</p>
+    </div>
+}
+
 @if (Model.Resultado != null)
 {
     ResumenIva r = Model.Resultado;
 
     <div class="card">
         <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                <h2 class="h5 mb-0">Movimientos de IVA del @r.Fecha</h2>
+            <div class="resultado-encabezado">
+                <div>
+                    <h2>IVA del @r.Fecha</h2>
+                    <div class="meta">Montos en quetzales por contribuyente.</div>
+                </div>
                 @if (r.Contribuyentes.Count > 0)
                 {
                     <button class="btn btn-outline-secondary btn-sm" type="button" data-subtitulo="Fecha: @r.Fecha"
                             onclick="generarPdf({ titulo: 'Resumen de IVA por fecha y NIT', subtitulo: this.dataset.subtitulo, archivo: 'resumen_iva.pdf', grafica: 'grafica', tablas: ['tablaIva'] })">
-                        Descargar PDF
+                        <i class="fas fa-download me-1"></i>Descargar PDF
                     </button>
                 }
             </div>
 
             @if (r.Contribuyentes.Count == 0)
             {
-                <div class="alert alert-info mb-0">No hay facturas autorizadas en esa fecha.</div>
+                <div class="alert alert-info mb-0">No hay facturas autorizadas en esta fecha.</div>
             }
             else
             {
@@ -51,27 +66,29 @@
                     <canvas id="grafica"></canvas>
                 </div>
 
-                <table class="table table-sm table-striped" id="tablaIva">
-                    <thead>
-                        <tr><th>NIT</th><th>Nombre</th><th class="num">IVA emitido</th><th class="num">IVA recibido</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (IvaContribuyente c in r.Contribuyentes)
-                        {
+                <div class="tabla-scroll">
+                    <table class="table" id="tablaIva">
+                        <thead>
+                            <tr><th>NIT</th><th>Nombre</th><th class="num">IVA emitido</th><th class="num">IVA recibido</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (IvaContribuyente c in r.Contribuyentes)
+                            {
+                                <tr>
+                                    <td>@c.Nit</td><td>@c.Nombre</td>
+                                    <td class="num">Q @c.IvaEmitido.ToString("N2")</td><td class="num">Q @c.IvaRecibido.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
                             <tr>
-                                <td>@c.Nit</td><td>@c.Nombre</td>
-                                <td class="num">Q @c.IvaEmitido.ToString("N2")</td><td class="num">Q @c.IvaRecibido.ToString("N2")</td>
+                                <td colspan="2">Total</td>
+                                <td class="num">Q @r.Contribuyentes.Sum(c => c.IvaEmitido).ToString("N2")</td>
+                                <td class="num">Q @r.Contribuyentes.Sum(c => c.IvaRecibido).ToString("N2")</td>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr class="fw-bold">
-                            <td colspan="2">Total</td>
-                            <td class="num">Q @r.Contribuyentes.Sum(c => c.IvaEmitido).ToString("N2")</td>
-                            <td class="num">Q @r.Contribuyentes.Sum(c => c.IvaRecibido).ToString("N2")</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             }
         </div>
     </div>
@@ -79,20 +96,29 @@
     @section Scripts {
         <script src="~/lib/chartjs/chart.umd.min.js"></script>
         <script>
+            Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+            Chart.defaults.color = '#6B7885';
+
             new Chart(document.getElementById('grafica'), {
                 type: 'bar',
                 data: {
                     labels: @Json.Serialize(r.Contribuyentes.Select(c => c.Nit)),
                     datasets: [
-                        { label: 'IVA emitido', data: @Json.Serialize(r.Contribuyentes.Select(c => c.IvaEmitido)), backgroundColor: '#343a40' },
-                        { label: 'IVA recibido', data: @Json.Serialize(r.Contribuyentes.Select(c => c.IvaRecibido)), backgroundColor: '#0dcaf0' }
+                        { label: 'IVA emitido', data: @Json.Serialize(r.Contribuyentes.Select(c => c.IvaEmitido)), backgroundColor: '#8DB8C4', borderRadius: 6, maxBarThickness: 44 },
+                        { label: 'IVA recibido', data: @Json.Serialize(r.Contribuyentes.Select(c => c.IvaRecibido)), backgroundColor: '#D8CBA6', borderRadius: 6, maxBarThickness: 44 }
                     ]
                 },
                 options: {
                     maintainAspectRatio: false,
                     animation: false,
-                    plugins: { title: { display: true, text: 'IVA emitido y recibido por NIT (Q)' } },
-                    scales: { y: { beginAtZero: true } }
+                    plugins: {
+                        title: { display: true, text: 'IVA emitido y recibido por NIT (Q)', color: '#2F3B45', font: { weight: '600', size: 13 } },
+                        legend: { labels: { usePointStyle: true, boxWidth: 8 } }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { color: '#EEF2F4' }, border: { display: false } }
+                    }
                 }
             });
         </script>

@@ -1,5 +1,5 @@
-﻿@{
-    // Pagina actual, para marcar en el menu lateral la opcion activa
+@{
+    // Página actual, para resaltar la opción activa del menú lateral
     string actual = ViewContext.RouteData.Values["page"] as string ?? "";
     Func<string, string> activo = pagina => actual == pagina ? "active" : "";
 }
@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SAT DTE</title>
+    <title>@ViewData["Title"] SAT CONTROL DTE </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -16,79 +16,70 @@
 <body>
     <div id="contenedor">
 
-        <nav id="menuLateral" class="menu-lateral">
-            <a class="menu-marca" asp-page="/Index">
-                <i class="fas fa-file-invoice-dollar"></i>
-                <span>SAT · DTE</span>
-            </a>
+        <nav id="menuLateral" class="menu-lateral" aria-label="Navegación principal">
+            <div class="menu-grupo">
+                <a class="menu-enlace @activo("/Index")" asp-page="/Index">
+                    <i class="fas fa-fw fa-home"></i><span>Inicio</span>
+                </a>
+            </div>
 
-            <hr />
-            <a class="menu-enlace @activo("/Index")" asp-page="/Index">
-                <i class="fas fa-fw fa-home"></i><span>Inicio</span>
-            </a>
+            <div class="menu-grupo">
+                <div class="menu-titulo">Mensajes</div>
+                <a class="menu-enlace @activo("/Enviar")" asp-page="/Enviar">
+                    <i class="fas fa-fw fa-paper-plane"></i><span>Enviar mensaje</span>
+                </a>
+            </div>
 
-            <hr />
-            <div class="menu-titulo">Mensajes</div>
-            <a class="menu-enlace @activo("/Enviar")" asp-page="/Enviar">
-                <i class="fas fa-fw fa-paper-plane"></i><span>Enviar mensaje</span>
-            </a>
+            <div class="menu-grupo">
+                <div class="menu-titulo">Consultas</div>
+                <a class="menu-enlace @activo("/Consultas/Contribuyente")" asp-page="/Consultas/Contribuyente">
+                    <i class="fas fa-fw fa-user-tie"></i><span>Por contribuyente</span>
+                </a>
+                <a class="menu-enlace @activo("/Consultas/Iva")" asp-page="/Consultas/Iva">
+                    <i class="fas fa-fw fa-percent"></i><span>IVA por fecha</span>
+                </a>
+                <a class="menu-enlace @activo("/Consultas/Rango")" asp-page="/Consultas/Rango">
+                    <i class="fas fa-fw fa-chart-bar"></i><span>Totales por periodo</span>
+                </a>
+                <a class="menu-enlace @activo("/Consultas/Errores")" asp-page="/Consultas/Errores">
+                    <i class="fas fa-fw fa-exclamation-triangle"></i><span>Errores detectados</span>
+                </a>
+            </div>
 
-            <hr />
-            <div class="menu-titulo">Peticiones</div>
-            <a class="menu-enlace @activo("/Consultas/Contribuyente")" asp-page="/Consultas/Contribuyente">
-                <i class="fas fa-fw fa-user-tie"></i><span>Consultar contribuyente</span>
-            </a>
-            <a class="menu-enlace @activo("/Consultas/Iva")" asp-page="/Consultas/Iva">
-                <i class="fas fa-fw fa-percent"></i><span>Resumen de IVA</span>
-            </a>
-            <a class="menu-enlace @activo("/Consultas/Rango")" asp-page="/Consultas/Rango">
-                <i class="fas fa-fw fa-chart-bar"></i><span>Resumen por rango</span>
-            </a>
-            <a class="menu-enlace @activo("/Consultas/Errores")" asp-page="/Consultas/Errores">
-                <i class="fas fa-fw fa-exclamation-triangle"></i><span>Reporte de errores</span>
-            </a>
+            <div class="menu-grupo">
+                <div class="menu-titulo">Ayuda</div>
+                <a class="menu-enlace @activo("/Ayuda/Estudiante")" asp-page="/Ayuda/Estudiante">
+                    <i class="fas fa-fw fa-user-graduate"></i><span>Datos del estudiante</span>
+                </a>
+                <a class="menu-enlace @activo("/Ayuda/Documentacion")" asp-page="/Ayuda/Documentacion">
+                    <i class="fas fa-fw fa-book"></i><span>Guía del sistema</span>
+                </a>
+            </div>
 
-            <hr />
-            <div class="menu-titulo">Ayuda</div>
-            <a class="menu-enlace @activo("/Ayuda/Estudiante")" asp-page="/Ayuda/Estudiante">
-                <i class="fas fa-fw fa-user-graduate"></i><span>Estudiante</span>
-            </a>
-            <a class="menu-enlace @activo("/Ayuda/Documentacion")" asp-page="/Ayuda/Documentacion">
-                <i class="fas fa-fw fa-book"></i><span>Documentacion</span>
-            </a>
+            <div class="menu-grupo">
+                <div class="menu-titulo">Sistema</div>
+                <a class="menu-enlace @activo("/Inicializar")" asp-page="/Inicializar">
+                    <i class="fas fa-fw fa-trash-restore"></i><span>Reiniciar datos</span>
+                </a>
+            </div>
 
-            <hr />
-            <div class="menu-titulo">Sistema</div>
-            <a class="menu-enlace @activo("/Inicializar")" asp-page="/Inicializar">
-                <i class="fas fa-fw fa-trash-restore"></i><span>Inicializar</span>
-            </a>
-
-            <hr class="d-none d-md-block" />
-            <div class="text-center d-none d-md-block">
-                <button type="button" id="botonMenu" class="boton-menu" title="Contraer menu" onclick="alternarMenu()">
+            <div class="menu-pie d-none d-md-block">
+                <button type="button" id="botonMenu" class="boton-menu" title="Contraer menú" aria-label="Contraer menú" onclick="alternarMenu()">
                     <i class="fas fa-angle-left"></i>
                 </button>
             </div>
         </nav>
 
         <div id="contenido" class="d-flex flex-column">
-            <nav class="barra-superior">
-                <button type="button" class="btn btn-link d-md-none me-2 p-0" onclick="alternarMenu()" title="Menu">
+            <div class="barra-superior">
+                <button type="button" class="btn btn-link d-md-none me-2 p-0" onclick="alternarMenu()" title="Menú" aria-label="Abrir menú">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h1 class="h5 mb-0 text-gray">@ViewData["Title"]</h1>
-                <span class="ms-auto text-gray small d-none d-sm-inline">
-                    <i class="fas fa-user-circle me-1"></i>Andres Fernando Corado Cux - 202503756
-                </span>
-            </nav>
+            </div>
 
             <main class="container-fluid px-4 pb-4 flex-grow-1">
                 @RenderBody()
             </main>
-
-            <footer class="pie">
-                | IPC2 | Proyecto 3 | 2S2026 | (https://github.com/NanDo-ssj/IPC2_Proy03_202602_202503756) |
-            </footer>
         </div>
     </div>
 
@@ -97,6 +88,36 @@
     <script src="~/lib/jspdf/jspdf.umd.min.js"></script>
     <script src="~/lib/jspdf/jspdf.plugin.autotable.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Menú lateral: en escritorio se contrae, en móvil se abre sobre la página.
+        // Esta versión reemplaza a la de site.js para usar las clases del nuevo diseño.
+        function alternarMenu() {
+            var contenedor = document.getElementById('contenedor');
+            if (window.matchMedia('(max-width: 767.98px)').matches) {
+                contenedor.classList.toggle('menu-abierto');
+            } else {
+                contenedor.classList.toggle('menu-contraido');
+                try { localStorage.setItem('menuContraido', contenedor.classList.contains('menu-contraido') ? '1' : '0'); } catch (e) { }
+            }
+        }
+
+        (function () {
+            var contenedor = document.getElementById('contenedor');
+            try {
+                if (localStorage.getItem('menuContraido') === '1' && window.innerWidth >= 768) {
+                    contenedor.classList.add('menu-contraido');
+                }
+            } catch (e) { }
+
+            // En móvil, tocar fuera del menú lo cierra
+            document.getElementById('contenido').addEventListener('click', function (e) {
+                if (!e.target.closest('.barra-superior')) {
+                    contenedor.classList.remove('menu-abierto');
+                }
+            });
+        })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

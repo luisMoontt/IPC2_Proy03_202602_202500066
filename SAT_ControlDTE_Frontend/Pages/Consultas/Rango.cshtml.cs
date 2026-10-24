@@ -36,7 +36,7 @@ public class RangoModel : PageModel
 
         if (Desde == null || Hasta == null)
         {
-            Error = "Ingrese las dos fechas del rango.";
+            Error = "Completa las dos fechas para continuar.";
             return;
         }
 

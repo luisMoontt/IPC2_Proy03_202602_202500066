@@ -1,33 +1,35 @@
 @page
 @model RangoModel
 @{
-    ViewData["Title"] = "Resumen por rango de fechas";
+    ViewData["Title"] = "Totales por periodo";
 }
 
+<header class="pagina-encabezado">
+    <h1>Totales por periodo</h1>
+    <p>Mira cuánto se autorizó cada día dentro de un rango de fechas y elige si quieres verlo con o sin IVA.</p>
+</header>
 
 <div class="card mb-4">
     <div class="card-body">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-3">
+        <form method="get" class="filtros">
+            <div>
                 <label class="form-label" asp-for="Desde">Desde</label>
                 <input class="form-control" asp-for="Desde" />
             </div>
-            <div class="col-md-3">
+            <div>
                 <label class="form-label" asp-for="Hasta">Hasta</label>
                 <input class="form-control" asp-for="Hasta" />
             </div>
-            <div class="col-md-4">
-                <label class="form-label d-block">Valores</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" asp-for="Valores" value="total" id="total" />
-                    <label class="form-check-label" for="total">Totales</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" asp-for="Valores" value="siniva" id="siniva" />
-                    <label class="form-check-label" for="siniva">Sin IVA</label>
+            <div>
+                <label class="form-label d-block">Mostrar montos</label>
+                <div class="segmentado">
+                    <input type="radio" asp-for="Valores" value="total" id="total" />
+                    <label for="total">Con IVA</label>
+                    <input type="radio" asp-for="Valores" value="siniva" id="siniva" />
+                    <label for="siniva">Sin IVA</label>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div>
                 <button class="btn btn-primary w-100" type="submit">Consultar</button>
             </div>
         </form>
@@ -39,30 +41,38 @@
     <div class="alert alert-warning">@Model.Error</div>
 }
 
+@if (Model.Resultado == null && Model.Error == null)
+{
+    <div class="vacio">
+        <i class="fas fa-chart-bar"></i>
+        <p>Define el rango de fechas y pulsa «Consultar» para ver los montos autorizados por día.</p>
+    </div>
+}
+
 @if (Model.Resultado != null)
 {
     ResumenRango r = Model.Resultado;
-    string subtitulo = $"Del {r.Desde} al {r.Hasta} - Valores: {Model.NombreValores}";
+    string subtitulo = $"Periodo: {r.Desde} a {r.Hasta}. Valores: {Model.NombreValores}";
 
     <div class="card">
         <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+            <div class="resultado-encabezado">
                 <div>
-                    <h2 class="h5 mb-1">Valor autorizado por fecha</h2>
-                    <div class="text-muted">@subtitulo</div>
+                    <h2>Monto autorizado por día</h2>
+                    <div class="meta">Del @r.Desde al @r.Hasta, mostrando @Model.NombreValores.</div>
                 </div>
                 @if (r.Fechas.Count > 0)
                 {
                     <button class="btn btn-outline-secondary btn-sm" type="button" data-subtitulo="@subtitulo"
                             onclick="generarPdf({ titulo: 'Resumen por rango de fechas', subtitulo: this.dataset.subtitulo, archivo: 'resumen_rango.pdf', grafica: 'grafica', tablas: ['tablaRango'] })">
-                        Descargar PDF
+                        <i class="fas fa-download me-1"></i>Descargar PDF
                     </button>
                 }
             </div>
 
             @if (r.Fechas.Count == 0)
             {
-                <div class="alert alert-info mb-0">No hay facturas autorizadas en el rango indicado.</div>
+                <div class="alert alert-info mb-0">No hay facturas autorizadas en el rango elegido.</div>
             }
             else
             {
@@ -70,24 +80,26 @@
                     <canvas id="grafica"></canvas>
                 </div>
 
-                <table class="table table-sm table-striped" id="tablaRango">
-                    <thead>
-                        <tr><th>Fecha</th><th class="num">Facturas autorizadas</th><th class="num">Valor autorizado (@Model.NombreValores)</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (RangoPorFecha fila in r.Fechas)
-                        {
-                            <tr><td>@fila.Fecha</td><td class="num">@fila.CantidadFacturas</td><td class="num">Q @Model.ValorDe(fila).ToString("N2")</td></tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr class="fw-bold">
-                            <td>Total del rango</td>
-                            <td class="num">@r.Fechas.Sum(f => f.CantidadFacturas)</td>
-                            <td class="num">Q @Model.ValorGeneral.ToString("N2")</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="tabla-scroll">
+                    <table class="table" id="tablaRango">
+                        <thead>
+                            <tr><th>Fecha</th><th class="num">Facturas autorizadas</th><th class="num">Monto (@Model.NombreValores)</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (RangoPorFecha fila in r.Fechas)
+                            {
+                                <tr><td>@fila.Fecha</td><td class="num">@fila.CantidadFacturas</td><td class="num">Q @Model.ValorDe(fila).ToString("N2")</td></tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>Total del periodo</td>
+                                <td class="num">@r.Fechas.Sum(f => f.CantidadFacturas)</td>
+                                <td class="num">Q @Model.ValorGeneral.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             }
         </div>
     </div>
@@ -95,6 +107,9 @@
     @section Scripts {
         <script src="~/lib/chartjs/chart.umd.min.js"></script>
         <script>
+            Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+            Chart.defaults.color = '#6B7885';
+
             new Chart(document.getElementById('grafica'), {
                 type: 'bar',
                 data: {
@@ -102,14 +117,22 @@
                     datasets: [{
                         label: '@Model.NombreValores',
                         data: @Json.Serialize(r.Fechas.Select(f => Model.ValorDe(f))),
-                        backgroundColor: '#0dcaf0'
+                        backgroundColor: '#8DB8C4',
+                        borderRadius: 6,
+                        maxBarThickness: 44
                     }]
                 },
                 options: {
                     maintainAspectRatio: false,
                     animation: false,
-                    plugins: { title: { display: true, text: 'Valor autorizado por fecha (Q)' } },
-                    scales: { y: { beginAtZero: true } }
+                    plugins: {
+                        title: { display: true, text: 'Monto autorizado por día (Q)', color: '#2F3B45', font: { weight: '600', size: 13 } },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { color: '#EEF2F4' }, border: { display: false } }
+                    }
                 }
             });
         </script>

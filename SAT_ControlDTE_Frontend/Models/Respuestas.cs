@@ -2,9 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace Sat.Web;
 
-// Clases con la misma forma que los JSON que responde Sat.Api.
-// ApiCliente las llena con JsonSerializer (sin importar mayusculas/minusculas).
-
 public class RespuestaRtu
 {
     [JsonPropertyName("CONTRIBUYENTES_NUEVOS")] public int Nuevos { get; set; }
